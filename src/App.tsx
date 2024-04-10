@@ -1,4 +1,4 @@
-import { FC, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { BrowserRouter, Route, Routes, redirect, useNavigate } from 'react-router-dom';
 
 // css
@@ -19,8 +19,9 @@ import Registration from './components/Registration';
 
 // firebase
 
-import { authFirebase, dbFirebase } from './app/firebaseApp'
-import { doc, addDoc, collection } from 'firebase/firestore'
+import { authFirebase, dbFirebase, storageFirebase } from './app/firebaseApp'
+import { setDoc, doc, addDoc, collection, getDocs } from 'firebase/firestore'
+import { uploadBytes, ref, getDownloadURL } from 'firebase/storage';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth'
 
 
@@ -32,38 +33,96 @@ import { CardType } from './types/type';
 const App: FC = () => {
 
 
-  const [isAuth, setIsAuth] = useState(false)
-  const [auth, setAuth] = useState<CardType>({
-    login: '',
-    password: '',
-    name: '',
-    tgId: '',
-    proffession: '',
-    isAdmin: false
-  })
+
+const [data, setData] = useState<Record<string, any>>([])
+const [isAuth, setIsAuth] = useState<boolean>(false)
+const [urlAvatar, setUrlAvatar] = useState<string>('')
+const [auth, setAuth] = useState<CardType>({
+  login: '',
+  password: '',
+  name: '',
+  avatar: urlAvatar,
+  tgId: '',
+  proffession: '',
+  isAdmin: false
+})
 
 
-  const navigate = useNavigate()
+useEffect(() => {
+  getData()
+}, [isAuth])
 
 
-  const createUserProfile = async (card: CardType) => {
 
-    const docRef = await addDoc(collection(dbFirebase, 'users'), {
-      card
+
+const uniqId = data.length + 1
+const navigate = useNavigate()
+
+
+// get firestore data
+
+
+const getData = async () => {
+  const querySnapshot = await getDocs(collection(dbFirebase, 'users'))
+  const data =  querySnapshot.docs.map((doc) => doc.data())
+  setData(data)
+}
+
+
+
+
+
+// upload storage IMG
+
+
+const uploadFile = (file: any) => {
+  if(!file){
+      return
+  }
+  const imageRef = ref(storageFirebase, 'userAvatar/' + file.name)
+  uploadBytes(imageRef, file).then((snapshot: any) => {
+    getDownloadURL(snapshot.ref).then((url: any) => {
+      console.log(url)
+      setUrlAvatar(JSON.stringify(url))
+      console.log(urlAvatar)
     })
+  })
+}
 
-    console.log(docRef.id)
+// upload firestore
 
+
+  const createUserProfile = async () => {
+    const docRef = await setDoc(doc(dbFirebase, 'users', JSON.stringify(uniqId)), {
+      id: uniqId,
+      login: auth.login,
+      password: auth.password,
+      avatar: urlAvatar,
+      name: auth.name,
+      isAdmin: auth.isAdmin,
+    })
   }
 
-
+// crete user auth, storage, firestore
 
   const createNewUser = (login: string, password: string) => {
-
     createUserWithEmailAndPassword(authFirebase, login, password).then((userCredential) => {
       const user = userCredential.user
-      console.log(user)
-      createUserProfile(auth)
+      uploadFile(auth.avatar)
+      createUserProfile()
+
+    }).then(() => {
+      setAuth({
+        login: '',
+        password: '',
+        name: '',
+        avatar: '',
+        tgId: '',
+        proffession: '',
+        isAdmin: false
+      })
+
+      navigate('/')
     }).catch((error) => {
       const errorCode = error.code
       const errorMessage = error.message
@@ -71,6 +130,8 @@ const App: FC = () => {
     })
   }
 
+
+  // auth signin
 
   const authSignIn = async (login: string, password: string) : Promise<any> => {
 
@@ -86,11 +147,6 @@ const App: FC = () => {
 
       })
   }
-
-
-  console.log(isAuth)
-
-
 
 
 

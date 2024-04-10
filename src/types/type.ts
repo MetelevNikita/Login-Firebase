@@ -1,7 +1,8 @@
 export type CardType = {
-  login: string
+  login: string,
   password: string,
-  name: string
+  name: string,
+  avatar: string | any,
   tgId: string,
   proffession: string,
   isAdmin: false;

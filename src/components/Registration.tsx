@@ -18,6 +18,7 @@ const Registration: FC<RegistrationProps> = ({ login, create }) => {
 
   const {auth, setAuth} = login
 
+
   return (
 
     <Row md={12} className='d-flex flex-column'>
@@ -35,13 +36,26 @@ const Registration: FC<RegistrationProps> = ({ login, create }) => {
 
           <Col md={12}><MyInput style={{width: '100%', height: '50px'}} type='text' placeholer='введите вашу должность' value={auth.profession} onChange={(e) => {setAuth({...auth, profession: e.target.value})}}></MyInput></Col>
 
+          <Col className='d-flex align-items-center mt-3 mb-3'>
 
 
-
-          <Col style={{width: '100%', height: '50px'}} md={12} className='d-flex align-items-center'>
+          <Col md={6} className='d-flex align-items-center justify-content-center'>
             <span style={{marginRight: '10px'}}>должность админа</span>
-            <MyInput type='checkbox' placeholer='' value={auth.profession} onChange={(e) => {setAuth({...auth, profession: e.target.value})}}></MyInput>
+            <MyInput type='checkbox' checked={auth.isAdmin} onChange={(e) => {setAuth({...auth, isAdmin: true})}}></MyInput>
           </Col>
+
+
+          <Col md={6} className='d-flex align-items-center justify-content-center'>
+              <span style={{marginRight: '10px'}}>Загрузите изображение</span>
+              <MyInput type='file' onChange={(e) => {setAuth({...auth, avatar: e.target.files[0]})}}></MyInput>
+          </Col>
+
+
+
+
+          </Col>
+
+
 
 
           <Col><MyButton text='создать' onClick={() => {create(auth.login, auth.password)}}></MyButton></Col>
