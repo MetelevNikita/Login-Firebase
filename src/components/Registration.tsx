@@ -11,18 +11,18 @@ import MyButton from './ui/MyButton'
 
 interface RegistrationProps {
   login: any
-  create: any
+  createNewUser: (e: any) => void
 }
 
-const Registration: FC<RegistrationProps> = ({ login, create }) => {
+const Registration: FC<RegistrationProps> = ({ login, createNewUser }) => {
 
   const {auth, setAuth} = login
-
 
   return (
 
     <Row md={12} className='d-flex flex-column'>
       <Col>Registration</Col>
+
 
       <Col>
 
@@ -34,31 +34,31 @@ const Registration: FC<RegistrationProps> = ({ login, create }) => {
 
           <Col md={12}><MyInput style={{width: '100%', height: '50px'}} type='text' placeholer='введите id телеграмма' value={auth.tgId} onChange={(e) => {setAuth({...auth, tgId: e.target.value})}}></MyInput></Col>
 
-          <Col md={12}><MyInput style={{width: '100%', height: '50px'}} type='text' placeholer='введите вашу должность' value={auth.profession} onChange={(e) => {setAuth({...auth, profession: e.target.value})}}></MyInput></Col>
+          <Col md={12}><MyInput style={{width: '100%', height: '50px'}} type='text' placeholer='введите вашу должность' value={auth.proffession} onChange={(e) => {setAuth({...auth, proffession: e.target.value})}}></MyInput></Col>
 
           <Col className='d-flex align-items-center mt-3 mb-3'>
 
 
           <Col md={6} className='d-flex align-items-center justify-content-center'>
             <span style={{marginRight: '10px'}}>должность админа</span>
-            <MyInput type='checkbox' checked={auth.isAdmin} onChange={(e) => {setAuth({...auth, isAdmin: true})}}></MyInput>
+            <MyInput type='checkbox' checked={auth.isAdmin} onChange={(e) => {setAuth({...auth, isAdmin: e.target.checked})}}></MyInput>
           </Col>
-
 
           <Col md={6} className='d-flex align-items-center justify-content-center'>
               <span style={{marginRight: '10px'}}>Загрузите изображение</span>
               <MyInput type='file' onChange={(e) => {setAuth({...auth, avatar: e.target.files[0]})}}></MyInput>
           </Col>
 
-
-
-
           </Col>
 
 
 
+          <Col md={4} className='d-flex flex-row'>
+              <Col><MyButton style={{width: '100%', height: '50px', border: 'none',}} text='создать' onClick={() => {createNewUser(auth)}}></MyButton></Col>
+              <Col><MyButton style={{width: '100%', height: '50px', border: 'none'}} text='назад' onClick={() => {}}></MyButton></Col>
+          </Col>
 
-          <Col><MyButton text='создать' onClick={() => {create(auth.login, auth.password)}}></MyButton></Col>
+
 
       </Col>
 
