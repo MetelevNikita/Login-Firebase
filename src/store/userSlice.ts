@@ -17,7 +17,7 @@ export const getUserAsync = createAsyncThunk(
 
     const querySnapshot = await getDocs(collection(dbFirebase, "users"));
     const data = querySnapshot.docs.map((doc) => {
-      return doc
+      return doc.data()
     })
 
 
@@ -29,29 +29,32 @@ export const getUserAsync = createAsyncThunk(
 
 
 interface User {
-  user: CardType[]
+  users: CardType[]
 }
 
 
 const initialState: User = {
-  user: []
+  users: []
 }
 
 
 
 
 const userSlice = createSlice({
-  name: 'user',
+  name: 'users',
   initialState,
 
   reducers: {},
 
   extraReducers(builder) {
 
-    builder.addCase(getUserAsync.fulfilled, (state : any, action) => {
-      state.user = action.payload
+    builder.addCase(getUserAsync.fulfilled, (state: CardType[] | any, action) => {
+      state.users = action.payload
 
     })
 
   },
 })
+
+
+export default userSlice.reducer

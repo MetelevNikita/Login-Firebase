@@ -16,6 +16,13 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 import { Container } from "react-bootstrap";
 
+// redux
+
+
+import { useAppDispatch, useAppSelector } from "./types/redux-type";
+import { getUserAsync } from "./store/userSlice";
+
+
 // components
 
 import Auth from "./components/Auth";
@@ -27,16 +34,16 @@ import Registration from "./components/Registration";
 import { authFirebase, dbFirebase, storageFirebase } from "./app/firebaseApp";
 import { setDoc, doc, collection, getDocs } from "firebase/firestore";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword} from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged} from "firebase/auth";
 
 // type
 
 import { CardType } from "./types/type";
 
 const App: FC = () => {
-  const [data, setData] = useState<Record<string, any>>([]);
   const [isAuth, setIsAuth] = useState<boolean>(false);
   const [urlAvatar, setUrlAvatar] = useState<any>('');
+  const [emailUser, setEmailUser] = useState<string>('')
   const [auth, setAuth] = useState<CardType>({
     login: "",
     password: "",
@@ -48,26 +55,21 @@ const App: FC = () => {
   });
 
 
+  const dispatch = useAppDispatch();
+  const selector = useAppSelector((state) => state.user.users);
+
   useEffect(() => {
-    getData();
-  }, [isAuth]);
+    dispatch(getUserAsync());
+  }, [auth])
+
 
   useEffect(() => {
     uploadFile(auth.avatar)
   }, [auth.avatar])
 
 
-  const uniqId = data.length + 1;
+  const uniqId = selector.length + 1;
   const navigate = useNavigate();
-
-  // get firestore data
-
-  const getData = async () => {
-    const querySnapshot = await getDocs(collection(dbFirebase, "users"));
-    const data = querySnapshot.docs.map((doc) => doc.data());
-    setData(data);
-  };
-
 
 
   // upload storage IMG
@@ -126,35 +128,50 @@ const App: FC = () => {
   const authSignIn = async (login: string, password: string): Promise<any> => {
     signInWithEmailAndPassword(authFirebase, login, password)
       .then((usertCredential) => {
-        console.log(usertCredential);
-        setIsAuth(true);
-        navigate("/main");
+        const user = usertCredential.user;
+        console.log(user.uid)
+        sessionStorage.setItem('uid', user.uid)
+        navigate('/main')
       })
       .catch((error) => {
         alert("Неправильный логин или пароль");
-        setIsAuth(false);
       });
   };
+
+
+
+  // auth signout
+
+
+  const authSignOut = () => {
+    sessionStorage.setItem('uid', '')
+    navigate('/')
+  }
+
 
 
 
 
   const createUser = (auth: CardType) => {
     try {
-      createLogin(auth.login, auth.password)
-      createProfile(auth);
+      setTimeout(() => {
 
-        setAuth({
-          login: "",
-          password: "",
-          name: "",
-          avatar: "",
-          tgId: "",
-          proffession: "",
-          isAdmin: false,
-        });
+        createLogin(auth.login, auth.password)
+        createProfile(auth);
 
-        navigate("/");
+          setAuth({
+            login: "",
+            password: "",
+            name: "",
+            avatar: "",
+            tgId: "",
+            proffession: "",
+            isAdmin: false,
+          });
+
+          navigate("/");
+
+      },3000)
 
 
     } catch (error) {
@@ -175,7 +192,7 @@ const App: FC = () => {
         ></Route>
         <Route
           path="/main"
-          element={<Main isLogin={{ isAuth, setIsAuth }}></Main>}
+          element={<Main authOut={authSignOut} login={{ auth, setAuth }}></Main>}
         ></Route>
         <Route
           path="/registration"

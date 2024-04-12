@@ -1,4 +1,5 @@
 import { FC } from'react'
+import { useNavigate } from 'react-router-dom'
 
 //
 
@@ -17,6 +18,7 @@ interface RegistrationProps {
 const Registration: FC<RegistrationProps> = ({ login, createNewUser }) => {
 
   const {auth, setAuth} = login
+  const navigate = useNavigate()
 
   return (
 
@@ -55,7 +57,7 @@ const Registration: FC<RegistrationProps> = ({ login, createNewUser }) => {
 
           <Col md={4} className='d-flex flex-row'>
               <Col><MyButton style={{width: '100%', height: '50px', border: 'none',}} text='создать' onClick={() => {createNewUser(auth)}}></MyButton></Col>
-              <Col><MyButton style={{width: '100%', height: '50px', border: 'none'}} text='назад' onClick={() => {}}></MyButton></Col>
+              <Col><MyButton style={{width: '100%', height: '50px', border: 'none'}} text='назад' onClick={() => {navigate('/')}}></MyButton></Col>
           </Col>
 
 
