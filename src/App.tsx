@@ -127,10 +127,11 @@ const App: FC = () => {
 
   const authSignIn = async (login: string, password: string): Promise<any> => {
     signInWithEmailAndPassword(authFirebase, login, password)
-      .then((usertCredential) => {
+      .then((usertCredential : any) => {
         const user = usertCredential.user;
-        console.log(user.uid)
         sessionStorage.setItem('uid', user.uid)
+        sessionStorage.setItem('email', user.email)
+
         navigate('/main')
       })
       .catch((error) => {
@@ -145,6 +146,7 @@ const App: FC = () => {
 
   const authSignOut = () => {
     sessionStorage.setItem('uid', '')
+    sessionStorage.setItem('email', '')
     navigate('/')
   }
 
@@ -192,7 +194,7 @@ const App: FC = () => {
         ></Route>
         <Route
           path="/main"
-          element={<Main authOut={authSignOut} login={{ auth, setAuth }}></Main>}
+          element={<Main authOut={authSignOut}></Main>}
         ></Route>
         <Route
           path="/registration"

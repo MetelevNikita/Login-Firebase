@@ -19,29 +19,29 @@ import MyButton from "./ui/MyButton"
 
 interface MainProps {
   authOut: any
-  login: any
 }
 
 
 
-const Main: FC<MainProps> = ({ authOut, login }) => {
+const Main: FC<MainProps> = ({ authOut }) => {
 
   const dispatchh = useAppDispatch();
   const selector = useAppSelector(state => state.user.users)
 
 
+
   const navigate = useNavigate()
   const uid = sessionStorage.getItem('uid')
-  const {auth, setAuth} = login
+  const email = sessionStorage.getItem('email')
 
+  const selectedUser = selector.filter((item) => {return item.login === email})
+  console.log(selectedUser[0])
 
-  const selectedUser = selector.filter((item) => {return item.login === auth.login})
-  console.log(selectedUser)
 
 
   useEffect(() => {
     dispatchh(getUserAsync())
-  }, [auth])
+  }, [])
 
 
   useEffect(() => {
@@ -51,8 +51,6 @@ const Main: FC<MainProps> = ({ authOut, login }) => {
   } , [])
 
 
-
-  console.log(selector)
 
 
 
